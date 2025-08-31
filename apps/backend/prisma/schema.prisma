@@ -1,4 +1,3 @@
-// apps/backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,7 +44,9 @@ model Seller {
   userId       String   @unique
   storeName    String
   description  String?
-  pavilion     Pavilion
+  building     String
+  row          String
+  spot         String
   openingHours String?
   phone        String?
   email        String?
@@ -62,12 +63,6 @@ model Seller {
 
   user         User     @relation(fields: [userId], references: [id])
   @@map("sellers")
-}
-
-type Pavilion {
-  building String
-  row      String
-  spot     String
 }
 
 model Category {
@@ -93,7 +88,7 @@ model Product {
   stock       Int
   rating      Float      @default(0)
   reviewCount Int        @default(0)
-  variations  Variation[]
+  variations  Json?
   tags        String[]
   pickup      Boolean    @default(true)
   delivery    Boolean    @default(false)
@@ -111,12 +106,6 @@ model Product {
 
   @@index([title, description], name: "product_search_index")
   @@map("products")
-}
-
-type Variation {
-  id    String
-  name  String
-  value String
 }
 
 model Order {
@@ -213,8 +202,8 @@ model ChatMessage {
   createdAt  DateTime @default(now())
 
   sender     User     @relation("sentMessages", fields: [senderId], references: [id])
-  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id])
-  seller     Seller?  @relation("sellerChats", fields: [receiverId], references: [id])
+  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id], map: "chat_receiver_fkey")
+  seller     Seller?  @relation("sellerChats", fields: [receiverId], references: [id], map: "chat_seller_fkey")
 
   @@map("chat_messages")
 }
