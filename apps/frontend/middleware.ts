@@ -1,9 +1,9 @@
-// apps/frontend/middleware.ts
 import createMiddleware from 'next-intl/middleware';
  
 export default createMiddleware({
   locales: ['ka', 'en', 'ru'],
-  defaultLocale: 'ka'
+  defaultLocale: 'ka',
+  localePrefix: 'as-needed' // Убираем префиксы для дефолтной локали
 });
  
 export const config = {
