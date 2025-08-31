@@ -1,5 +1,4 @@
-# Makefile
-.PHONY: up down dev seed logs test
+.PHONY: up down dev seed logs
 
 up:
 	docker compose up -d
@@ -16,16 +15,3 @@ seed:
 
 logs:
 	docker compose logs -f
-
-test:
-	cd apps/backend && pnpm run test && \
-	cd apps/frontend && pnpm run test
-
-postinstall:
-	@echo "Running postinstall setup..."
-	cd apps/backend && pnpm run db:migrate && pnpm run seed
-	@echo "Setup complete! URLs:"
-	@echo "- Frontend: http://localhost:3000"
-	@echo "- Backend API: http://localhost:4000"
-	@echo "- MailHog: http://localhost:8025"
-	@echo "- MinIO Console: http://localhost:9001"
