@@ -1,0 +1,16 @@
+// package.json (root)
+{
+  "name": "lilo-market",
+  "version": "1.0.0",
+  "description": "Lilo Market - Digital Marketplace for Lilo Bazaar",
+  "private": true,
+  "scripts": {
+    "postinstall": "make postinstall"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

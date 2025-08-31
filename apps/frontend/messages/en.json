@@ -1,0 +1,9 @@
+// apps/frontend/messages/en.json
+{
+  "Home": {
+    "title": "Digital Platform of Lilo Bazaar",
+    "description": "Discover the nearest pavilions, order products and receive them quickly at your desired location",
+    "cta": "Get Started",
+    "forSellers": "For Sellers"
+  }
+}

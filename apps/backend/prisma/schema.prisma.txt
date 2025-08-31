@@ -1,0 +1,233 @@
+// apps/backend/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  password      String?
+  role          Role       @default(BUYER)
+  firstName     String?
+  lastName      String?
+  phone         String?
+  avatar        String?
+  isVerified    Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  seller        Seller?
+  orders        Order[]
+  reviews       Review[]
+  sentMessages  ChatMessage[] @relation("sentMessages")
+  receivedMessages ChatMessage[] @relation("receivedMessages")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+  @@map("roles")
+}
+
+model Seller {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  storeName    String
+  description  String?
+  pavilion     Pavilion
+  openingHours String?
+  phone        String?
+  email        String?
+  website      String?
+  socialLinks  String[]
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0)
+  isActive     Boolean  @default(true)
+  subscription Subscription?
+  products     Product[]
+  orders       Order[]
+  reviews      Review[]
+  chats        ChatMessage[] @relation("sellerChats")
+
+  user         User     @relation(fields: [userId], references: [id])
+  @@map("sellers")
+}
+
+type Pavilion {
+  building String
+  row      String
+  spot     String
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  parentId    String?
+  parent      Category? @relation("CategoryRelation", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryRelation")
+  products    Product[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  discount    Float      @default(0)
+  stock       Int
+  rating      Float      @default(0)
+  reviewCount Int        @default(0)
+  variations  Variation[]
+  tags        String[]
+  pickup      Boolean    @default(true)
+  delivery    Boolean    @default(false)
+  photos      String[]
+  isActive    Boolean    @default(true)
+  categoryId  String
+  sellerId    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  category    Category   @relation(fields: [categoryId], references: [id])
+  seller      Seller     @relation(fields: [sellerId], references: [id])
+  reviews     Review[]
+  orderItems  OrderItem[]
+
+  @@index([title, description], name: "product_search_index")
+  @@map("products")
+}
+
+type Variation {
+  id    String
+  name  String
+  value String
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  userId       String
+  sellerId     String
+  items        OrderItem[]
+  totalAmount  Float
+  status       OrderStatus @default(PENDING)
+  paymentType  PaymentType
+  paymentStatus PaymentStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id])
+  seller       Seller      @relation(fields: [sellerId], references: [id])
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  READY
+  PICKED
+  CANCELLED
+}
+
+enum PaymentType {
+  ONLINE
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Subscription {
+  id           String         @id @default(uuid())
+  sellerId     String         @unique
+  plan         SubscriptionPlan
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean        @default(true)
+  paymentId    String?
+
+  seller       Seller         @relation(fields: [sellerId], references: [id])
+  @@map("subscriptions")
+}
+
+enum SubscriptionPlan {
+  BASIC
+  PRO
+  MAX
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String?
+  sellerId  String?
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product? @relation(fields: [productId], references: [id])
+  seller    Seller?  @relation(fields: [sellerId], references: [id])
+
+  @@map("reviews")
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("sentMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id])
+  seller     Seller?  @relation("sellerChats", fields: [receiverId], references: [id])
+
+  @@map("chat_messages")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
