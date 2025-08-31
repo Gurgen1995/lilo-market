@@ -1,4 +1,3 @@
-// apps/backend/prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -56,11 +55,9 @@ async function main() {
         userId: user.id,
         storeName: `მაღაზია ${i}`,
         description: `მაღაზიის აღწერა ${i}`,
-        pavilion: {
-          building: `A${Math.ceil(i / 5)}`,
-          row: `რიგი ${Math.ceil(i / 2)}`,
-          spot: `ადგილი ${i}`,
-        },
+        building: `A${Math.ceil(i / 5)}`,
+        row: `რიგი ${Math.ceil(i / 2)}`,
+        spot: `ადგილი ${i}`,
         phone: `+995 32 123 45${i.toString().padStart(2, '0')}`,
         email: `info${i}@store.ge`,
         isActive: true,
